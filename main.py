@@ -43,8 +43,6 @@ def main() -> None:
     currency_handler = CurrencyHandler()
 
 
-    # MORE UI FRIENDLY? DO THIS LAST IF TIME ALLOWES IT.
-
     while True:
         print("\nCurrency Converter Menu:")
         print("[0] - List all currencies")
@@ -59,24 +57,47 @@ def main() -> None:
         choice = input("Enter your choice (0-7): ")
 
         # USE BASIC CLEAN CODE IN IF/ELIF-STATEMENTS!
-        # DO ONE CHOICE AT TIME IF POSSIBLE - BREAK DOWN THE BIG PROBLEM TO SMALLER PROBLEMS.
+        # DO ONE CHOICE AT TIME IF POSSIBLE
+        # BREAK DOWN THE BIG PROBLEM TO SMALLER PROBLEMS.
+        # TRY / EXCEPT IN ALL USERCHOICES?
 
-        # try / except in all userchoices - something like "listing currenices falied exception e message"
+        # Baisc errorhandling at the moment, maby improve?
         if choice == "0":
             try:
                 listing_currencies = currency_handler.list_rates()
+
                 if not listing_currencies:
                     print("No data avaliable, try refreshing data: [Menu option: 2].")
                 else:
-                    print(listing_currencies)
+                    print(", ".join(listing_currencies)) # ", ".join added for better terminal feedback.
             except Exception as e:
                 print(f"Error when listing currencies: {e}")
-                
-        elif choice == "1":
-            pass # convert error?
 
+
+        elif choice == "1":
+            convert_to = input("Convert USD to currency (e.g. EUR): ").strip().upper() # Use upper here to print out more userfriendy response later.
+            raw_user_amount = input("Enter amount in USD: ").strip() 
+
+            try:
+                user_amount = float(raw_user_amount) # Convert to float and store in new variable.
+                result = currency_handler.convert_from_usd(convert_to, user_amount) # Class method to do math -> store in variable
+                print(f"Amount: {user_amount:.2f} USD = {result:.2f} {convert_to}") # Print out result in formatted 2 decimal amount.
+
+            # Catch negative numbers/strings
+            except ValueError as e:                
+                print(f"Conversion error: {e}")
+            # Catch unexpected errors
+            except Exception as e:                
+                print(f"Unexpected error ocurred: {e}")
+
+        # Calls fetch method again to get rates again.
         elif choice == "2":
-            pass # refresh failed?
+            try:
+                currency_handler.fetch_currency_data()
+                print("Refreshed")
+            # Catch unexpected errors
+            except Exception as e:
+                print(f"Refresh failed: {e}")
 
         elif choice == "3":
             pass # export failed?
@@ -100,3 +121,34 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
+# UPDATE STEP 2:
+
+# main.py: choice:0 : ", ".join added for better terminal feedback.
+# cyrrency.py: fetch module: Added a "catcher" for network errors (raises a ConnectionError exception).
+# moved up my variables in fetch currency inside if-statement. Else it would still print currencylist even though error might occur.
+#
+# Start wokring with convert from usd method:
+# Do error handling - valueerrors for negative numbers and currencies that doesn't exist.
+# Convert currency 3 letter "code" to uppercase & strip it.
+# Apply math from to currency parameter (usd) to rate (the currency user want to convert) and return the product in float type.
+# 
+# choice1: 
+# Ask user for currency to convert -> ask for amount -> strip it and uppercase it to use later in print.
+# Convert to float.
+# Fetch method that does math and store in new variable.
+# Print formatted result.
+# Catch basic errors with try/except - print them.
+#
+#
+# choice2:
+# Call method to refresh rates by importing them again.
+# Catch baisc errors with try/except - print them.
+
+
+
+# SIDE NOTES: ON THE GO NOTES:
+# Do I need to import os / json to handle exports / loading files?
+# os can store API key in a variable (so it's not hardcoded).
+# 

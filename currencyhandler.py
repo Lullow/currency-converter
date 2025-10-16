@@ -3,7 +3,9 @@ from typing import Any
 import requests
 
 
-# CAN I IMPLEMENT CHOICE 0 NOW? YES / NO? - 
+# CAN I IMPLEMENT CHOICE 0 NOW? YES / NO? - YES BUT NEEDS IMPROVMENTS
+# LINE 84 RUNS AS SOON AS PROGRAM STARTS - GOOD / BAD IDEA? 
+# IT'S A BAD IDEA - NO PRINTS ONLY RETURNS AS INSTRUCTED! - FIX LATER
 class CurrencyHandler:
     def __init__(self, base_currency: str = "usd"):
         # You can only use "usd" as base in the API when using free tier.
@@ -46,6 +48,7 @@ class CurrencyHandler:
         # return self.rates
         # ------------------------------------------------
 
+
     def list_rates(self):
         """Return a list contaning all currencies in alphabetical order"""
         # Handle possible crasch if self.rates dict is empty by returning an empty list.
@@ -82,23 +85,28 @@ class CurrencyHandler:
 
             if response.status_code == 200: # 200 status is OK!
                 print("Success, data fetched from (server?)") # Give more information maby            
-                # What should I return? Should I even return it here?
+
+                data: dict[str, Any] = response.json() # Convert data to a .json, then into a dict and store it in variable "data".
+
+                self.data = data # Self.data saves the "whole" JSON response.
+                self.rates = data.get("rates", {}) # Looks for the value (every currency) from data - print a default value "{}" if "rates" does not exist.
+                self.base = data.get("base", "USD") # Because USD is the only base we can work with. / .get requests the data from server (the base currency in this case)
+                self.timestamp = data.get("timestamp") # Saves the last time data was timestamped (updated) / .get requests the data from server (the timestamp in this case)
+                return data # Returns data for other instances(?) parts of the program to use.
             else:
                 print("Non-sucess status code: ", response.status_code) # Give information about status-code (what went wrong).
 
-            data: dict[str, Any] = response.json() # Convert data to a .json, then into a dict and store it in variable "data".
-
-            self.data = data # Self.data saves the "whole" JSON response.
-            self.rates = data.get("rates", {}) # Looks for the value (every currency) from data - print a default value "{}" if "rates" does not exist.
-            self.base = data.get("base", "USD") # Because USD is the only base we can work with. / .get requests the data from server (the base currency in this case)
-            self.timestamp = data.get("timestamp") # Saves the last time data was timestamped (updated) / .get requests the data from server (the timestamp in this case)
-            
-            return data # Returns data for other instances(?) parts of the program to use.
-    
-        except: pass # timeout?  missing/missing_app_id? invalid_base? not_found?
+        # Added a "catcher" for network errors (raises a ConnectionError exception).
+        # Prevents program from crasching
+        except requests.RequestException as e:
+            print(f"Network error whilke fetching data: {e}")
+            self.data = {}
+            self.rates = {}
+            self.timestamp = None
+            return {}
 
 
-
+    # RECOMMENT WHEN CODE STOPS BEING SO GOD DAMN CONFUSING.
     def convert_from_usd(self, to_currency: str, amount: float) -> float:
         """
         Convert a given amount from USD to another specified currency.
@@ -114,8 +122,39 @@ class CurrencyHandler:
         Raises:
             ValueError: If the currency code is invalid or the amount is negative.
         """
-        pass
 
+        # 1. Handle invalid numbers & errors.
+        # 2. Convert them.
+        # 3. Return them.
+
+        # 1.1. What errors can occur? 
+        # 1.2  If amount under 0 or below - ValueError.
+        # 1.3 if a currency doeesn't exist - what error do we get?
+
+
+        # amount: The amount in USD to be converted.
+        # Basic errorhandling.
+        if amount < 0:
+            raise ValueError("Amount must be greater than 0.")
+
+        # to_currency: The 3-letter code of the currency to convert to.
+        # Set all currencies to upper-letter str, and accept extra spaces.
+        convert_currency = to_currency.strip().upper()
+
+        # List of rates that we fetched eairlier.
+        # Raise ValueError if currency not in list.
+        if convert_currency not in self.rates:
+            raise ValueError(f"Program does not support: {convert_currency}")
+        
+        # Use self.rate becase it's the dict that stores the live dict.
+        # Create variable rate, get value from to_currency key.
+        # This mean basically self.rate["SEK"] if we convert from USD -> SEK.
+        # So it will look up SEK in rates and return the value example: 1 USD -> 10.50 SEK.
+        # Rate stores the value (rate = (SEK)10.50)).
+        # Convert to float-type.
+        # Return the amount times the rate ("1usd * 10.50sek = 10.50 SEK")
+        rate = float(self.rates[convert_currency])
+        return amount * rate
 
 
     def convert_any_currency(
