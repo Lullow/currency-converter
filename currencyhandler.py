@@ -3,6 +3,7 @@ from typing import Any
 import requests
 
 
+# CAN I IMPLEMENT CHOICE 0 NOW? YES / NO? - 
 class CurrencyHandler:
     def __init__(self, base_currency: str = "usd"):
         # You can only use "usd" as base in the API when using free tier.
@@ -18,15 +19,52 @@ class CurrencyHandler:
 
         # ADVICE: Start implementing the fetch_currency_data method
         """
-        pass
+        self.base = base_currency.upper() # For storing the base currency and converting string to uppercase-letters.
+        self.data = {} # Store the API data
+        self.rates = {} # Store the rates for currency
+        self.timestamp = None # placeholder (DONT KNOW WHAT TO DO WITH THIS YET)
+
+        # TRY EXCEPT HERE? OFC - BUT WHAT? DO I NEED TO BE SPECIFIC OR JUST GENERALL MSG?
+        self.fetch_currency_data() 
+
+        # ----------------------------------------------
+
+        # !!!!!!!!!!!THIS MUST BE IN ANOTHER METHOD!!!!!!!!!!!!
+
+        # Handle possible crasch if self.rates dict is empty by returning an empty list.
+        # if not self.rates: 
+        #     return []
+
+        # # If dict contains data - return it sorted by alphabetical order. 
+        # # keys() used for getting only keys else we get key:values in dict stryle{}        
+        # return sorted(self.rates.keys()) 
+
+        # # - IMPROVISING - IF STATEMENT ABOVE WORKS BETTER THAN CODE BELOW.. I THINK..? DONT DELITE JUST YET.
+        # self.rates = list(self.rates.keys()) # Return all rates and store it in variable "self.rates"
+        # self.rates = sorted(self.rates) # Sort them in alphabetical order
+        # 
+        # return self.rates
+        # ------------------------------------------------
+
+    def list_rates(self):
+        """Return a list contaning all currencies in alphabetical order"""
+        # Handle possible crasch if self.rates dict is empty by returning an empty list.
+        if not self.rates: 
+            return []
+
+        # If dict contains data - return it sorted by alphabetical order. 
+        # keys() used for getting only keys else we get key:values in dict stryle{}        
+        return sorted(self.rates.keys()) 
+
+
 
     def fetch_currency_data(self) -> dict[str, Any]:
         """
         Fetch the latest currency exchange rate data from the openexchangerates API.
 
         This method should:
-        1. Make an API request to fetch the latest exchange rates.
-        2. Parse the JSON response and extract relevant data.
+        1. Make an API request to fetch the latest exchange rates. 
+        2. Parse the JSON response and extract relevant data. 
         3. Store the fetched data in the appropriate instance variable(s).
         4. Handle any potential errors or exceptions that may occur during the API request.
 
@@ -34,14 +72,32 @@ class CurrencyHandler:
             A dictionary containing the latest exchange rates and metadata.
         """
         # Use this code to fetch currency data from openexchangerates.org.
-        app_id = "YOUR_APP_ID"  # Add your own app_id from openexchangerates.org here
-        url = f"https://openexchangerates.org/api/latest.json?app_id={app_id}"
-        headers = {
-            "accept": "application/json"
-        }  # This needs to be added, it tells the API that they should return JSON
-        response = requests.get(url, headers=headers)
-        # Implement the rest of the method
-        pass
+        app_id = "4ee8416577fd41128be96f5a18dbb9de"
+        url = f"https://openexchangerates.org/api/latest.json?app_id={app_id}" # 4ee8416577fd41128be96f5a18dbb9de
+        headers = {"accept": "application/json"}  # This needs to be added, it tells the API that they should return JSON
+        
+
+        try: 
+            response = requests.get(url, headers=headers, timeout=10) # Send the request to the server, pass-in a timeout at 10 seconds or it will run indefinitely.
+
+            if response.status_code == 200: # 200 status is OK!
+                print("Success, data fetched from (server?)") # Give more information maby            
+                # What should I return? Should I even return it here?
+            else:
+                print("Non-sucess status code: ", response.status_code) # Give information about status-code (what went wrong).
+
+            data: dict[str, Any] = response.json() # Convert data to a .json, then into a dict and store it in variable "data".
+
+            self.data = data # Self.data saves the "whole" JSON response.
+            self.rates = data.get("rates", {}) # Looks for the value (every currency) from data - print a default value "{}" if "rates" does not exist.
+            self.base = data.get("base", "USD") # Because USD is the only base we can work with. / .get requests the data from server (the base currency in this case)
+            self.timestamp = data.get("timestamp") # Saves the last time data was timestamped (updated) / .get requests the data from server (the timestamp in this case)
+            
+            return data # Returns data for other instances(?) parts of the program to use.
+    
+        except: pass # timeout?  missing/missing_app_id? invalid_base? not_found?
+
+
 
     def convert_from_usd(self, to_currency: str, amount: float) -> float:
         """
@@ -59,6 +115,8 @@ class CurrencyHandler:
             ValueError: If the currency code is invalid or the amount is negative.
         """
         pass
+
+
 
     def convert_any_currency(
         self, from_currency: str, to_currency: str, amount: float
@@ -79,6 +137,8 @@ class CurrencyHandler:
         """
         pass
 
+
+
     def list_currencies(self) -> list[str]:
         """
         List all available currencies in alphabetical order.
@@ -88,6 +148,8 @@ class CurrencyHandler:
             A sorted list of available currency codes.
         """
         pass
+
+
 
     def load_currency_data(self) -> dict[str, Any]:
         """
@@ -105,6 +167,8 @@ class CurrencyHandler:
         """
         pass
 
+
+
     def export_to_json(self) -> None:
         """
         Export the current currency data (for the latest currencies) to a JSON file.
@@ -118,6 +182,8 @@ class CurrencyHandler:
             IOError: If there's an error writing to the file, or a custom exception.
         """
         pass
+
+
 
     def get_historical_rate(self, date: str, base_currency: str) -> dict[str, Any]:
         """
@@ -133,6 +199,8 @@ class CurrencyHandler:
             You should probably store it in a list or dict.
         """
         pass
+
+
 
     def list_historical_rates_for_currency(
         self, currency: str, days: int

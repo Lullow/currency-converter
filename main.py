@@ -1,6 +1,7 @@
 from typing import Any
 
 import requests
+
 from currencyhandler import CurrencyHandler
 
 # DO NOT UPLOAD A VIRTUAL ENVIRONMENT TO GIT
@@ -41,6 +42,9 @@ def main() -> None:
     # Use this instance of CurrencyHandler to do stuff in your menu.
     currency_handler = CurrencyHandler()
 
+
+    # MORE UI FRIENDLY? DO THIS LAST IF TIME ALLOWES IT.
+
     while True:
         print("\nCurrency Converter Menu:")
         print("[0] - List all currencies")
@@ -54,30 +58,41 @@ def main() -> None:
 
         choice = input("Enter your choice (0-7): ")
 
-        if choice == "0":
-            pass
+        # USE BASIC CLEAN CODE IN IF/ELIF-STATEMENTS!
+        # DO ONE CHOICE AT TIME IF POSSIBLE - BREAK DOWN THE BIG PROBLEM TO SMALLER PROBLEMS.
 
+        # try / except in all userchoices - something like "listing currenices falied exception e message"
+        if choice == "0":
+            try:
+                listing_currencies = currency_handler.list_rates()
+                if not listing_currencies:
+                    print("No data avaliable, try refreshing data: [Menu option: 2].")
+                else:
+                    print(listing_currencies)
+            except Exception as e:
+                print(f"Error when listing currencies: {e}")
+                
         elif choice == "1":
-            pass
+            pass # convert error?
 
         elif choice == "2":
-            pass
+            pass # refresh failed?
 
         elif choice == "3":
-            pass
+            pass # export failed?
 
         elif choice == "4":
-            pass
+            pass # couldnt convert currency?
 
         elif choice == "5":
-            pass
+            pass # ?
 
         elif choice == "6":
-            pass
+            pass # fetch error?
 
         elif choice == "7":
             print("Thank you for using the Currency Converter. Goodbye!")
-            break
+            break # can this fail? 
 
         else:
             print("Invalid choice. Please try again.")
