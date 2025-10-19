@@ -1,3 +1,4 @@
+import json
 from typing import Any
 
 import requests
@@ -22,8 +23,8 @@ class CurrencyHandler:
         # ADVICE: Start implementing the fetch_currency_data method
         """
         self.base = base_currency.upper() # For storing the base currency and converting string to uppercase-letters.
-        self.data = {} # Store the API data
-        self.rates = {} # Store the rates for currency
+        self.data = {} # Store the API data - THIS IS WHERE ALL DATA IS STORED NOW! USE THIS IN OTHER METHODS TO GET INFORMATION TO THEM
+        self.rates = {} # Store the rates for currency 
         self.timestamp = None # placeholder (DONT KNOW WHAT TO DO WITH THIS YET)
 
         # TRY EXCEPT HERE? OFC - BUT WHAT? DO I NEED TO BE SPECIFIC OR JUST GENERALL MSG?
@@ -123,15 +124,6 @@ class CurrencyHandler:
             ValueError: If the currency code is invalid or the amount is negative.
         """
 
-        # 1. Handle invalid numbers & errors.
-        # 2. Convert them.
-        # 3. Return them.
-
-        # 1.1. What errors can occur? 
-        # 1.2  If amount under 0 or below - ValueError.
-        # 1.3 if a currency doeesn't exist - what error do we get?
-
-
         # amount: The amount in USD to be converted.
         # Basic errorhandling.
         if amount < 0:
@@ -207,8 +199,9 @@ class CurrencyHandler:
         pass
 
 
-
-    def export_to_json(self) -> None:
+    # self.data contains all the data we imported from the site
+    # Create new parameter and set it to string "updated_rates.json" to use in menuchoice.
+    def export_to_json(self, filename: str = "updated_rates.json") -> None:
         """
         Export the current currency data (for the latest currencies) to a JSON file.
 
@@ -220,7 +213,24 @@ class CurrencyHandler:
         Raises:
             IOError: If there's an error writing to the file, or a custom exception.
         """
-        pass
+        # If there's no data print msg and return.
+        if not self.data:
+            print("There's no data to export.")
+            return
+
+
+        # Open a file for writing ("w") "w" also creates file if it doesn't exist.
+        # Create method parameter "filename" and use it below
+        # .dump converts py dict to json string and writes it to the file.
+        # indent=number gives a better structure to the exported file, else it will display as a long string with all info.
+        try:
+            with open(filename, "w") as file:
+                json.dump(self.data, file, indent=4)
+
+            print(f"Data successfully exported to: {filename}")
+
+        except Exception as e:
+            print(f"There was an error exporting data: {e}")
 
 
 

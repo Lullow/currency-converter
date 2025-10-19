@@ -90,7 +90,7 @@ def main() -> None:
             except Exception as e:                
                 print(f"Unexpected error ocurred: {e}")
 
-        # Calls fetch method again to get rates again.
+        # Calls fetch method again to update rates.
         elif choice == "2":
             try:
                 currency_handler.fetch_currency_data()
@@ -99,8 +99,11 @@ def main() -> None:
             except Exception as e:
                 print(f"Refresh failed: {e}")
 
+        # TODO: FIX TIMESTAMP - Right now it shows: "timestamp": 1760878814 - HOW?
+        # Possible try/except block here?
+        # Use currency_handler variable to import export method. 
         elif choice == "3":
-            pass # export failed?
+            currency_handler.export_to_json("updated_rates.json")
 
         elif choice == "4":
             pass # couldnt convert currency?
@@ -133,22 +136,46 @@ if __name__ == "__main__":
 # Do error handling - valueerrors for negative numbers and currencies that doesn't exist.
 # Convert currency 3 letter "code" to uppercase & strip it.
 # Apply math from to currency parameter (usd) to rate (the currency user want to convert) and return the product in float type.
-# 
+
+
 # choice1: 
 # Ask user for currency to convert -> ask for amount -> strip it and uppercase it to use later in print.
 # Convert to float.
 # Fetch method that does math and store in new variable.
 # Print formatted result.
 # Catch basic errors with try/except - print them.
-#
-#
+
+
 # choice2:
 # Call method to refresh rates by importing them again.
 # Catch baisc errors with try/except - print them.
 
 
-
+# --------------
 # SIDE NOTES: ON THE GO NOTES:
 # Do I need to import os / json to handle exports / loading files?
 # os can store API key in a variable (so it's not hardcoded).
-# 
+# self.data IS WHERE INFORMATION ABOUT CURRENCYS ARE STORED!
+# TIMESTAMP INFO? (see update 3 on current time formatted - isoformat()) - FIX WHEN REST OF CLASSMETHODS ARE IMPLEMENTED!
+# --------------
+
+
+# UPDATE STEP 3: (EXPORT DATA TO JSON)
+
+# https://realpython.com/read-write-files-python/ - File handling (open, write, read) 
+
+# https://docs.python.org/3/library/os.html#os.makedirs - import os for using os.makedirs(), os.path.exists(), os.path.dirname().
+
+# https://www.w3schools.com/python/python_datetime.asp - current time formatted - isoformat()
+
+# Start building very basic code to convert json-formatted string - DONE
+# Handle potential (baisc) errors - DONE
+# HOW TO INCLUDE THE CURRENT TIMESTAMP ? ? ? ? ? ? ?
+
+
+# UPDATE STEP 4: (Convert from any currency to any currency)
+# Where to begin?
+# From currency -> to currency (use the 3 letter "code")
+# Handle amount math
+# Return the "to currency"
+# Catch errors - invalid currency / invalid amount (0 or negative)
