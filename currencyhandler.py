@@ -183,8 +183,8 @@ class CurrencyHandler:
         # The convert from/to is the 3-letter code e.g. "SEK" / self.rates looks up the code in dict
         # The base is "USD", so now it knows 1USD = 10~SEK (which is stores in from_rate)
         # Same goes with to_rate e.g.: (1USD = 1EUR)
-        from_rate = self.rates(convert_from)
-        to_rate = self.rates(convert_to)
+        from_rate = self.rates[convert_from]
+        to_rate = self.rates[convert_to]
 
         # Convert the amount from the choosen rate to USD: 
         # Example: 100 SEK to USD (1USD ~= 10.5 SEK): 100 / 10.50 = 9.5~ (USD)

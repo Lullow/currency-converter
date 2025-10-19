@@ -70,6 +70,7 @@ def main() -> None:
                     print("No data avaliable, try refreshing data: [Menu option: 2].")
                 else:
                     print(", ".join(listing_currencies)) # ", ".join added for better terminal feedback.
+
             except Exception as e:
                 print(f"Error when listing currencies: {e}")
 
@@ -106,7 +107,21 @@ def main() -> None:
             currency_handler.export_to_json("updated_rates.json")
 
         elif choice == "4":
-            pass # couldnt convert currency?
+            user_from = input("What currency do you want to convert FROM? - (e.g. SEK): ").strip().upper() # strip and upper methods for friendlier UI experience.
+            user_to = input("What currency do you want to convert TO? - (e.g. SEK): ").strip().upper()
+            user_amount = input("What amount: ").strip()
+
+            try:
+                user_amount_float = float(user_amount) # Convert to float
+                result = currency_handler.convert_any_currency(user_from, user_to, user_amount_float) # Use convert any currency method to do the conversion.
+                print(f"You converted {user_amount_float:.2f} {user_from} to {user_to}.") 
+                print(f"Final payout: {result:.2f} {user_to}.")
+
+            # Catch input that's not numbers, negative or wrong currency code. Also unexcepcted errors, and handle them without crasching the program.
+            except ValueError as e:
+                print(f"There was an error when converting currency: {e}")
+            except Exception as e:
+                print(f"Unexpected error ocurred: {e}")
 
         elif choice == "5":
             pass # ?
@@ -115,7 +130,7 @@ def main() -> None:
             pass # fetch error?
 
         elif choice == "7":
-            print("Thank you for using the Currency Converter. Goodbye!")
+            print("Thank you for using th e Currency Converter. Goodbye!")
             break # can this fail? 
 
         else:
