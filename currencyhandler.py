@@ -245,7 +245,7 @@ class CurrencyHandler:
         if not self.data:
             print("There's no data to export.")
             return
-
+        
 
         # Open a file for writing ("w") "w" also creates file if it doesn't exist.
         # Create method parameter "filename" and use it below
@@ -261,8 +261,8 @@ class CurrencyHandler:
             print(f"There was an error exporting data: {e}")
 
 
-
-    def get_historical_rate(self, date: str, base_currency: str) -> dict[str, Any]:
+    # Change parameter base_currency to USD (free-user only allows USD as base).
+    def get_historical_rate(self, date: str, base_currency: str="USD") -> dict[str, Any]:
         """
         Get the historical exchange rate for a specific date using
         one of the relevant API-endpoints.
@@ -275,7 +275,24 @@ class CurrencyHandler:
             The historical exchange rates as a dictionary for a specific date
             You should probably store it in a list or dict.
         """
-        pass
+
+        # Create f-string and variables for app ID, URL and date.
+        app_id = "4ee8416577fd41128be96f5a18dbb9de"
+        url = f"https://openexchangerates.org/api/historical/{date}.json?app_id={app_id}" # Change "date" to input
+
+        try:
+            # Create variable and get request for url, add connection timeout at 10 seconds.
+            response = requests.get(url, timeout=10)
+            # Checks for HTTP status code of the response and raises error if it's not correct.
+            response.raise_for_status()
+            # Create variable that stores the response as json (historical_data variable will be a dict format due to .json (converts it automatically))
+            historical_data = response.json()
+        
+        # Basic error handling, return empty dict in this case (to avoid crash) - TRY TO BE MORE SPECIFIC HERE
+        except Exception as e:
+            print(f"Failed to fetch historical data: {e}") # TODO: How to implement the response.exceptions to catch all network issues? 
+            return {}
+        return historical_data
 
 
 

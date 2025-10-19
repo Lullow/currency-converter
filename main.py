@@ -124,7 +124,24 @@ def main() -> None:
                 print(f"Unexpected error ocurred: {e}")
 
         elif choice == "5":
-            pass # ?
+            date = input("Enter date to check (YYYY-MM-DD): ").strip()
+
+            try:
+                historical_date_data = currency_handler.get_historical_rate(date)
+
+                if not historical_date_data:
+                    print("Historical data was not found.")
+                else:
+                    # .get() reads the value of the key 'timestamp' / 'base' and prints it. 
+                    print(f"Timestamp: {historical_date_data.get('timestamp')}")
+                    print(f"Base: {historical_date_data.get('base')}")
+
+                    # code represents the 3-letter code, rate represents the value, items() iterates key, value pairs.
+                    for code, rate in list(historical_date_data.items()):
+                        print(f"{code}: {rate}") # The terminal get's cluttery with this approach, how to fix?
+
+            except Exception as e:
+                print(f"Error fetching historical rates: {e}")
 
         elif choice == "6":
             pass # fetch error?
@@ -194,3 +211,28 @@ if __name__ == "__main__":
 # Handle amount math
 # Return the "to currency"
 # Catch errors - invalid currency / invalid amount (0 or negative)
+
+
+# UPDATE STEP 5: Get historical exchange rate
+# Goal - fetch last exchange rates (from a specific date)
+# So basically user want to see what SEK was worth 2025-01-01
+# Access API historical data -> Get json
+# NOW TO FIX THE TIMESTAMP AT STEP 3 ALSO - NEED TO GET YYYY-MM-DD format!!
+# Can I use list_rate method to do this, or do I need to apply code in historical method? Do own code in new method.
+# Do I need to add more parameters to method?
+# Do I need to import date time? Yes. Better date format for menuchoice 3 and this one.
+
+
+# Start by placing app_id and url (same as list_rate)
+# Do a .get request, timeout included
+# handle errors with try except - check how you did list_rates
+# return as dict (store it in dict or list)
+
+# Menu choice:
+# Use 3 letter code for getting data
+# apply try/except (check if date is avaliable / format input correct / other errors)
+
+# OBS! each day requested counts as one API request 
+# (so requesting a full month of data will count as up to 31 ‘hits’"
+# Where the requested end date is not a valid calendar date, 
+# it will be corrected backwards automatically to the nearest valid day
