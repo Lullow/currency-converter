@@ -126,7 +126,7 @@ class CurrencyHandler:
 
         # amount: The amount in USD to be converted.
         # Basic errorhandling.
-        if amount < 0:
+        if amount <= 0:
             raise ValueError("Amount must be greater than 0.")
 
         # to_currency: The 3-letter code of the currency to convert to.
@@ -150,8 +150,7 @@ class CurrencyHandler:
 
 
     def convert_any_currency(
-        self, from_currency: str, to_currency: str, amount: float
-    ) -> float:
+        self, from_currency: str, to_currency: str, amount: float) -> float:
         """
         Convert an amount from one currency to another using the latest exchange rates.
 
@@ -166,7 +165,36 @@ class CurrencyHandler:
         Raises:
             ValueError: If either currency code is invalid or the amount is negative.
         """
-        pass
+
+        # Baisc number errorhandling
+        if amount <= 0:
+            raise ValueError("Error: amount must be greater than 0")
+
+        # Create two variables to work with, uppsercase and strip them for better UI.
+        convert_from = from_currency.upper().strip()
+        convert_to = to_currency.upper().strip()
+
+        # Basic errorhandling for currency code
+        if convert_from not in self.rates or convert_to not in self.rates:
+            raise ValueError ("Either currency converting from, or to are invalid.")
+
+        # Create variable that takes self.rates dict to apply in coming conversion (to be able to do math)
+        # What happens:
+        # The convert from/to is the 3-letter code e.g. "SEK" / self.rates looks up the code in dict
+        # The base is "USD", so now it knows 1USD = 10~SEK (which is stores in from_rate)
+        # Same goes with to_rate e.g.: (1USD = 1EUR)
+        from_rate = self.rates(convert_from)
+        to_rate = self.rates(convert_to)
+
+        # Convert the amount from the choosen rate to USD: 
+        # Example: 100 SEK to USD (1USD ~= 10.5 SEK): 100 / 10.50 = 9.5~ (USD)
+        base_amount = amount / from_rate
+        # Convert the base amount (USD) to choosen rate e.g. EUR (1USD ~= 0.9EUR)
+        # 0.95(USD(base_amount)) * 0.90(EUR(to_rate)) ~= 0.85(EUR(converted_amount))
+        converted_amount = base_amount * to_rate
+
+        # Return the evaluated result
+        return converted_amount
 
 
 
