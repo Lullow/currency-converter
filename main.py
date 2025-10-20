@@ -236,3 +236,44 @@ if __name__ == "__main__":
 # (so requesting a full month of data will count as up to 31 ‘hits’"
 # Where the requested end date is not a valid calendar date, 
 # it will be corrected backwards automatically to the nearest valid day
+
+
+
+
+
+
+# UPDATE 6 - Get rate trend for a currency -  (list_historical_rates_for_currency method)
+# Args: 3-letter code / days (number of days to look back) (from - to?)
+# 
+# return: list of tuples that contains date and rate.
+
+# What I need to get information from site: APP ID / URL 
+
+# Errors? negative days / correct input / timeout / overall exception for errors / more?
+
+# So basically return a a list of rates for the chosen currency that goes from oldest to newest.
+# something like (YYYY-MM-DD, time? currency: rate) -> times the users choice.
+# So if user chooses 4 days - print out 4 of the above lines.
+
+
+
+
+
+# HOW TO GET TIME / DATES INTO PROGRAM:
+
+# Examples:
+
+# A datetime object is a single object containing all the information from a date object and a time object.
+# from datetime import datetime
+
+# # Constructor:
+# class datetime.datetime(year, month, day, hour=0, minute=0, second=0, microsecond=0, tzinfo=None, *, fold=0)
+# datetime.fromisoformat('2011-11-04')
+
+
+# from datetime import timedelta
+# A timedelta object represents a duration, the difference between two datetime or date instances.
+
+# from datetime import datetime, timedelta <- 
+
+# Errors: If an argument outside those ranges is given, ValueError is raised.

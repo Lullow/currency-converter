@@ -1,4 +1,9 @@
 import json
+from datetime import (  # Needed for calculating date and time.
+    datetime,
+    timedelta,
+    timezone,
+)
 from typing import Any
 
 import requests
@@ -136,7 +141,7 @@ class CurrencyHandler:
         # List of rates that we fetched eairlier.
         # Raise ValueError if currency not in list.
         if convert_currency not in self.rates:
-            raise ValueError(f"Program does not support: {convert_currency}")
+            raise ValueError(f"No such currency found: {convert_currency}")
         
         # Use self.rate becase it's the dict that stores the live dict.
         # Create variable rate, get value from to_currency key.
@@ -295,10 +300,8 @@ class CurrencyHandler:
         return historical_data
 
 
-
-    def list_historical_rates_for_currency(
-        self, currency: str, days: int
-    ) -> list[tuple[str, str]]:
+    # DONT KNOW IF THIS WORKS AS INTENDEND JUST YET, FIX MENUCHOICE AND THEN FIX DETAILS
+    def list_historical_rates_for_currency(self, currency: str, days: int) -> list[tuple[str, str]]:
         """
         Get the trend of exchange rates for a currency over a specified number of days.
 
@@ -310,4 +313,30 @@ class CurrencyHandler:
             A list of tuples, each containing a date and the corresponding rate
             Tuples are typically used to store pairs of values.
         """
-        pass
+
+        if days <= 0:
+            raise ValueError("Please enter a positive number.")
+
+        results: list[tuple[str, str]] = [] # Store date and rate
+        user_code = currency.strip().upper()
+
+        # Sets the time to UTC
+        # today = datetime.now(datetime.timezone.utc) # doesn't work -.- wtf
+
+        # Sets time to UTC / .date() to remove time (only use date)
+        today = datetime.now(timezone.utc).date() # whaaaaaaaaaaaaaaaaaat?! lol you forgot to import timezone
+
+        for i in range(days):
+            prior_day = today - timedelta(days=i) # Math operation that goes back one day for each iteration.
+            date_string = prior_day.strftime("%Y-%m-%d") # Returns a string representing date.
+
+            new_data = self.get_historical_rate(date_string) # Reuse historical_rate method (date_string contains timestamp, rates).
+            rate = new_data.get("rates", {}).get(user_code) # Get rates for target currency and store in rate variable, if not found - store in empty dict to avoid crash
+
+            if rate:
+                results.append((date_string, float(rate))) # If rate is found, add it to result and convert it to float (wrap in tuple so it takes two arguments).
+
+        results.sort() # Sort the results.
+
+        return results # Return the results.
+
