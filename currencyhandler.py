@@ -301,7 +301,7 @@ class CurrencyHandler:
 
 
     # DONT KNOW IF THIS WORKS AS INTENDEND JUST YET, FIX MENUCHOICE AND THEN FIX DETAILS
-    def list_historical_rates_for_currency(self, currency: str, days: int) -> list[tuple[str, str]]:
+    def list_historical_rates_for_currency(self, currency: str, days: str) -> list[tuple[str, str]]:
         """
         Get the trend of exchange rates for a currency over a specified number of days.
 
@@ -313,6 +313,7 @@ class CurrencyHandler:
             A list of tuples, each containing a date and the corresponding rate
             Tuples are typically used to store pairs of values.
         """
+        
 
         if days <= 0:
             raise ValueError("Please enter a positive number.")
@@ -323,7 +324,7 @@ class CurrencyHandler:
         # Sets the time to UTC
         # today = datetime.now(datetime.timezone.utc) # doesn't work -.- wtf
 
-        # Sets time to UTC / .date() to remove time (only use date)
+        # Sets time to UTC / .date() to remove time (only use date). Variable represents todays date in UTC.
         today = datetime.now(timezone.utc).date() # whaaaaaaaaaaaaaaaaaat?! lol you forgot to import timezone
 
         for i in range(days):

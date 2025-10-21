@@ -143,8 +143,25 @@ def main() -> None:
             except Exception as e:
                 print(f"Error fetching historical rates: {e}")
 
+        # Get rate trend for a currency
         elif choice == "6":
-            pass # fetch error?
+            user_code = input("Enter currency code: (e.g.: SEK): ").strip().upper()
+            user_days = input("Enter how many days back from current date you want to lookup: ").strip().upper()
+
+            # Fetch class method, convert userinput for day lookup to int - store in variable.
+            date_rate_list = currency_handler.list_historical_rates_for_currency(user_code, int(user_days))
+
+            try: 
+                if not date_rate_list:
+                    print("No historical data found.")
+                else:
+                    print(f"{user_code} vs USD for the last {user_days} days: {date_rate_list}")
+            except ValueError:
+                print("Please enter digits when looking up prior dates.") # Catch valueerrors from input.
+            except Exception as e:
+                print(f"Unknown error while handling historical date: {e}") # Catch unexpected errors to aviod crash.
+
+
 
         elif choice == "7":
             print("Thank you for using th e Currency Converter. Goodbye!")
