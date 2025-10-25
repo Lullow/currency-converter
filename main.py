@@ -4,14 +4,6 @@ import requests
 
 from currencyhandler import CurrencyHandler
 
-# DO NOT UPLOAD A VIRTUAL ENVIRONMENT TO GIT
-# Add the name of your virtual environment to .gitignore
-# Now you can git add and git commit.
-# Remove the pass keyword from the method when you start implementing the method
-
-# REMEMBER TO MAKE COMMITS FREQUENTLY! I don't want to see only 1 commit with all the code in it.
-# You can remove these comments^
-
 # Think of the CurrencyHandler as a class that should strictly only handle functionality.
 # Using print, input or similar should be done outside of the class, in such way
 # that you COULD use the currencyhandler in any type of application that might
@@ -56,12 +48,7 @@ def main() -> None:
 
         choice = input("Enter your choice (0-7): ")
 
-        # USE BASIC CLEAN CODE IN IF/ELIF-STATEMENTS!
-        # DO ONE CHOICE AT TIME IF POSSIBLE
-        # BREAK DOWN THE BIG PROBLEM TO SMALLER PROBLEMS.
-        # TRY / EXCEPT IN ALL USERCHOICES?
 
-        # Baisc errorhandling at the moment, maby improve?
         if choice == "0":
             try:
                 listing_currencies = currency_handler.list_rates()
@@ -69,20 +56,24 @@ def main() -> None:
                 if not listing_currencies:
                     print("No data avaliable, try refreshing data: [Menu option: 2].")
                 else:
-                    print(", ".join(listing_currencies)) # ", ".join added for better terminal feedback.
+                    # ", ".join added for better terminal feedback.
+                    print(", ".join(listing_currencies))
 
             except Exception as e:
                 print(f"Error when listing currencies: {e}")
 
-
         elif choice == "1":
-            convert_to = input("Convert USD to currency (e.g. EUR): ").strip().upper() # Use upper here to print out more userfriendy response later.
+            # Use upper here to print out more userfriendy response later.
+            convert_to = input("Convert USD to currency (e.g. EUR): ").strip().upper()
             raw_user_amount = input("Enter amount in USD: ").strip() 
 
             try:
-                user_amount = float(raw_user_amount) # Convert to float and store in new variable.
-                result = currency_handler.convert_from_usd(convert_to, user_amount) # Class method to do math -> store in variable
-                print(f"Amount: {user_amount:.2f} USD = {result:.2f} {convert_to}") # Print out result in formatted 2 decimal amount.
+                # Convert to float and store in new variable.
+                user_amount = float(raw_user_amount)
+                # Class method to do math -> store in variable.
+                result = currency_handler.convert_from_usd(convert_to, user_amount)
+                # Print out result in formatted 2 decimal amount.
+                print(f"Amount: {user_amount:.2f} USD = {result:.2f} {convert_to}")
 
             # Catch negative numbers/strings
             except ValueError as e:                
@@ -91,7 +82,6 @@ def main() -> None:
             except Exception as e:                
                 print(f"Unexpected error ocurred: {e}")
 
-        # Calls fetch method again to update rates.
         elif choice == "2":
             try:
                 currency_handler.fetch_currency_data()
@@ -100,20 +90,20 @@ def main() -> None:
             except Exception as e:
                 print(f"Refresh failed: {e}")
 
-        # TODO: FIX TIMESTAMP - Right now it shows: "timestamp": 1760878814 - HOW?
-        # Possible try/except block here?
-        # Use currency_handler variable to import export method. 
         elif choice == "3":
             currency_handler.export_to_json("updated_rates.json")
 
         elif choice == "4":
-            user_from = input("What currency do you want to convert FROM? - (e.g. SEK): ").strip().upper() # strip and upper methods for friendlier UI experience.
+            # strip and upper methods for friendlier UI experience.
+            user_from = input("What currency do you want to convert FROM? - (e.g. SEK): ").strip().upper()
             user_to = input("What currency do you want to convert TO? - (e.g. SEK): ").strip().upper()
             user_amount = input("What amount: ").strip()
 
             try:
-                user_amount_float = float(user_amount) # Convert to float
-                result = currency_handler.convert_any_currency(user_from, user_to, user_amount_float) # Use convert any currency method to do the conversion.
+                # Convert to float.
+                user_amount_float = float(user_amount)
+                # Use convert any currency method to do the conversion.
+                result = currency_handler.convert_any_currency(user_from, user_to, user_amount_float)
                 print(f"You converted {user_amount_float:.2f} {user_from} to {user_to}.") 
                 print(f"Final payout: {result:.2f} {user_to}.")
 
@@ -137,19 +127,20 @@ def main() -> None:
                     print(f"Base: {historical_date_data.get('base')}")
 
                     # code represents the 3-letter code, rate represents the value, items() iterates key, value pairs.
-                    for code, rate in list(historical_date_data.items()):
-                        print(f"{code}: {rate}") # The terminal get's cluttery with this approach, how to fix?
+                    for code, rate in list(historical_date_data.get('rates', {}).items()[:10]):
+                        print(f"{code}: {rate}") #
 
             except Exception as e:
                 print(f"Error fetching historical rates: {e}")
 
-        # Get rate trend for a currency
         elif choice == "6":
             user_code = input("Enter currency code: (e.g.: SEK): ").strip().upper()
-            user_days = input("Enter how many days back from current date you want to lookup: ").strip().upper()
+            user_days_str = input("Enter how many days back from current date you want to lookup: ").strip()
 
+            # Convert user input to int.
             # Fetch class method, convert userinput for day lookup to int - store in variable.
-            date_rate_list = currency_handler.list_historical_rates_for_currency(user_code, int(user_days))
+            user_days = int(user_days_str)
+            date_rate_list = currency_handler.list_historical_rates_for_currency(user_code, user_days)
 
             try: 
                 if not date_rate_list:
@@ -157,15 +148,15 @@ def main() -> None:
                 else:
                     print(f"{user_code} vs USD for the last {user_days} days: {date_rate_list}")
             except ValueError:
-                print("Please enter digits when looking up prior dates.") # Catch valueerrors from input.
+                # Catch valueerrors from input.
+                print("Please enter digits when looking up prior dates.")
             except Exception as e:
-                print(f"Unknown error while handling historical date: {e}") # Catch unexpected errors to aviod crash.
-
-
+                # Catch unexpected errors to aviod crash.
+                print(f"Unknown error while handling historical data: {e}")
 
         elif choice == "7":
-            print("Thank you for using th e Currency Converter. Goodbye!")
-            break # can this fail? 
+            print("Thank you for using the Currency Converter. Goodbye!")
+            break
 
         else:
             print("Invalid choice. Please try again.")
@@ -173,124 +164,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
-
-# UPDATE STEP 2:
-
-# main.py: choice:0 : ", ".join added for better terminal feedback.
-# cyrrency.py: fetch module: Added a "catcher" for network errors (raises a ConnectionError exception).
-# moved up my variables in fetch currency inside if-statement. Else it would still print currencylist even though error might occur.
-#
-# Start wokring with convert from usd method:
-# Do error handling - valueerrors for negative numbers and currencies that doesn't exist.
-# Convert currency 3 letter "code" to uppercase & strip it.
-# Apply math from to currency parameter (usd) to rate (the currency user want to convert) and return the product in float type.
-
-
-# choice1: 
-# Ask user for currency to convert -> ask for amount -> strip it and uppercase it to use later in print.
-# Convert to float.
-# Fetch method that does math and store in new variable.
-# Print formatted result.
-# Catch basic errors with try/except - print them.
-
-
-# choice2:
-# Call method to refresh rates by importing them again.
-# Catch baisc errors with try/except - print them.
-
-
-# --------------
-# SIDE NOTES: ON THE GO NOTES:
-# Do I need to import os / json to handle exports / loading files?
-# os can store API key in a variable (so it's not hardcoded).
-# self.data IS WHERE INFORMATION ABOUT CURRENCYS ARE STORED!
-# TIMESTAMP INFO? (see update 3 on current time formatted - isoformat()) - FIX WHEN REST OF CLASSMETHODS ARE IMPLEMENTED!
-# --------------
-
-
-# UPDATE STEP 3: (EXPORT DATA TO JSON)
-
-# https://realpython.com/read-write-files-python/ - File handling (open, write, read) 
-
-# https://docs.python.org/3/library/os.html#os.makedirs - import os for using os.makedirs(), os.path.exists(), os.path.dirname().
-
-# https://www.w3schools.com/python/python_datetime.asp - current time formatted - isoformat()
-
-# Start building very basic code to convert json-formatted string - DONE
-# Handle potential (baisc) errors - DONE
-# HOW TO INCLUDE THE CURRENT TIMESTAMP ? ? ? ? ? ? ?
-
-
-# UPDATE STEP 4: (Convert from any currency to any currency)
-# Where to begin?
-# From currency -> to currency (use the 3 letter "code")
-# Handle amount math
-# Return the "to currency"
-# Catch errors - invalid currency / invalid amount (0 or negative)
-
-
-# UPDATE STEP 5: Get historical exchange rate
-# Goal - fetch last exchange rates (from a specific date)
-# So basically user want to see what SEK was worth 2025-01-01
-# Access API historical data -> Get json
-# NOW TO FIX THE TIMESTAMP AT STEP 3 ALSO - NEED TO GET YYYY-MM-DD format!!
-# Can I use list_rate method to do this, or do I need to apply code in historical method? Do own code in new method.
-# Do I need to add more parameters to method?
-# Do I need to import date time? Yes. Better date format for menuchoice 3 and this one.
-
-
-# Start by placing app_id and url (same as list_rate)
-# Do a .get request, timeout included
-# handle errors with try except - check how you did list_rates
-# return as dict (store it in dict or list)
-
-# Menu choice:
-# Use 3 letter code for getting data
-# apply try/except (check if date is avaliable / format input correct / other errors)
-
-# OBS! each day requested counts as one API request 
-# (so requesting a full month of data will count as up to 31 ‘hits’"
-# Where the requested end date is not a valid calendar date, 
-# it will be corrected backwards automatically to the nearest valid day
-
-
-
-
-
-
-# UPDATE 6 - Get rate trend for a currency -  (list_historical_rates_for_currency method)
-# Args: 3-letter code / days (number of days to look back) (from - to?)
-# 
-# return: list of tuples that contains date and rate.
-
-# What I need to get information from site: APP ID / URL 
-
-# Errors? negative days / correct input / timeout / overall exception for errors / more?
-
-# So basically return a a list of rates for the chosen currency that goes from oldest to newest.
-# something like (YYYY-MM-DD, time? currency: rate) -> times the users choice.
-# So if user chooses 4 days - print out 4 of the above lines.
-
-
-
-
-
-# HOW TO GET TIME / DATES INTO PROGRAM:
-
-# Examples:
-
-# A datetime object is a single object containing all the information from a date object and a time object.
-# from datetime import datetime
-
-# # Constructor:
-# class datetime.datetime(year, month, day, hour=0, minute=0, second=0, microsecond=0, tzinfo=None, *, fold=0)
-# datetime.fromisoformat('2011-11-04')
-
-
-# from datetime import timedelta
-# A timedelta object represents a duration, the difference between two datetime or date instances.
-
-# from datetime import datetime, timedelta <- 
-
-# Errors: If an argument outside those ranges is given, ValueError is raised.

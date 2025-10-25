@@ -9,13 +9,10 @@ from typing import Any
 import requests
 
 
-# CAN I IMPLEMENT CHOICE 0 NOW? YES / NO? - YES BUT NEEDS IMPROVMENTS
-# LINE 84 RUNS AS SOON AS PROGRAM STARTS - GOOD / BAD IDEA? 
-# IT'S A BAD IDEA - NO PRINTS ONLY RETURNS AS INSTRUCTED! - FIX LATER
 class CurrencyHandler:
     def __init__(self, base_currency: str = "usd"):
         # You can only use "usd" as base in the API when using free tier.
-        # Feel free to add more parameters if you have ideas on how
+        # Feel free to add more parameters if you have ideas on how.
         # the class might benefit from that, making it more customizable.
         """
         Initialize the CurrencyHandler.
@@ -27,42 +24,27 @@ class CurrencyHandler:
 
         # ADVICE: Start implementing the fetch_currency_data method
         """
-        self.base = base_currency.upper() # For storing the base currency and converting string to uppercase-letters.
-        self.data = {} # Store the API data - THIS IS WHERE ALL DATA IS STORED NOW! USE THIS IN OTHER METHODS TO GET INFORMATION TO THEM
-        self.rates = {} # Store the rates for currency 
-        self.timestamp = None # placeholder (DONT KNOW WHAT TO DO WITH THIS YET)
+        # For storing the base currency and converting string to uppercase-letters.
+        self.base = base_currency.upper()
+        # Store the API data.
+        self.data = {}
+        # Store the rates for currency.
+        self.rates = {}
+        # placeholder.
+        self.timestamp = None
 
-        # TRY EXCEPT HERE? OFC - BUT WHAT? DO I NEED TO BE SPECIFIC OR JUST GENERALL MSG?
         self.fetch_currency_data() 
 
-        # ----------------------------------------------
-
-        # !!!!!!!!!!!THIS MUST BE IN ANOTHER METHOD!!!!!!!!!!!!
-
-        # Handle possible crasch if self.rates dict is empty by returning an empty list.
-        # if not self.rates: 
-        #     return []
-
-        # # If dict contains data - return it sorted by alphabetical order. 
-        # # keys() used for getting only keys else we get key:values in dict stryle{}        
-        # return sorted(self.rates.keys()) 
-
-        # # - IMPROVISING - IF STATEMENT ABOVE WORKS BETTER THAN CODE BELOW.. I THINK..? DONT DELITE JUST YET.
-        # self.rates = list(self.rates.keys()) # Return all rates and store it in variable "self.rates"
-        # self.rates = sorted(self.rates) # Sort them in alphabetical order
-        # 
-        # return self.rates
-        # ------------------------------------------------
 
 
     def list_rates(self):
         """Return a list contaning all currencies in alphabetical order"""
         # Handle possible crasch if self.rates dict is empty by returning an empty list.
-        if not self.rates: 
+        if not self.rates:
             return []
 
-        # If dict contains data - return it sorted by alphabetical order. 
-        # keys() used for getting only keys else we get key:values in dict stryle{}        
+        # If dict contains data - return it sorted by alphabetical order.
+        # keys() used for getting only keys else we get key:values in dict style{}
         return sorted(self.rates.keys()) 
 
 
@@ -82,37 +64,46 @@ class CurrencyHandler:
         """
         # Use this code to fetch currency data from openexchangerates.org.
         app_id = "4ee8416577fd41128be96f5a18dbb9de"
-        url = f"https://openexchangerates.org/api/latest.json?app_id={app_id}" # 4ee8416577fd41128be96f5a18dbb9de
-        headers = {"accept": "application/json"}  # This needs to be added, it tells the API that they should return JSON
+        url = f"https://openexchangerates.org/api/latest.json?app_id={app_id}"
+        # This needs to be added, it tells the API that they should return JSON.
+        headers = {"accept": "application/json"}
         
 
         try: 
-            response = requests.get(url, headers=headers, timeout=10) # Send the request to the server, pass-in a timeout at 10 seconds or it will run indefinitely.
+            # Send the request to the server, pass-in a timeout at 10 seconds or it will run indefinitely.
+            response = requests.get(url, headers=headers, timeout=10)
 
-            if response.status_code == 200: # 200 status is OK!
-                print("Success, data fetched from (server?)") # Give more information maby            
-
-                data: dict[str, Any] = response.json() # Convert data to a .json, then into a dict and store it in variable "data".
-
-                self.data = data # Self.data saves the "whole" JSON response.
-                self.rates = data.get("rates", {}) # Looks for the value (every currency) from data - print a default value "{}" if "rates" does not exist.
-                self.base = data.get("base", "USD") # Because USD is the only base we can work with. / .get requests the data from server (the base currency in this case)
-                self.timestamp = data.get("timestamp") # Saves the last time data was timestamped (updated) / .get requests the data from server (the timestamp in this case)
-                return data # Returns data for other instances(?) parts of the program to use.
+            # 200 status is OK!
+            if response.status_code == 200:
+                print(response.raise_for_status)
+                # Convert data to a .json, then into a dict and store it in variable "data".
+                data: dict[str, Any] = response.json()
+                # Self.data saves the "whole" JSON response.
+                self.data = data
+                # Looks for the value (every currency) from data - print a default value "{}" if "rates" does not exist-
+                self.rates = data.get("rates", {})
+                # Because USD is the only base we can work with. / .get requests the data from server (the base currency in this case)-
+                self.base = data.get("base", "USD")
+                # Saves the last time data was timestamped (updated) / .get requests the data from server (the timestamp in this case).
+                self.timestamp = data.get("timestamp")
+                # Returns data
+                return data
+            
             else:
-                print("Non-sucess status code: ", response.status_code) # Give information about status-code (what went wrong).
+                # Print error message.
+                print(f"Non-success status code: {response.status_code}") 
 
         # Added a "catcher" for network errors (raises a ConnectionError exception).
         # Prevents program from crasching
         except requests.RequestException as e:
-            print(f"Network error whilke fetching data: {e}")
+            print(f"Network error while fetching data: {e}")
             self.data = {}
             self.rates = {}
             self.timestamp = None
             return {}
 
 
-    # RECOMMENT WHEN CODE STOPS BEING SO GOD DAMN CONFUSING.
+
     def convert_from_usd(self, to_currency: str, amount: float) -> float:
         """
         Convert a given amount from USD to another specified currency.
@@ -154,6 +145,7 @@ class CurrencyHandler:
         return amount * rate
 
 
+
     def convert_any_currency(
         self, from_currency: str, to_currency: str, amount: float) -> float:
         """
@@ -192,26 +184,23 @@ class CurrencyHandler:
         to_rate = self.rates[convert_to]
 
         # Convert the amount from the choosen rate to USD: 
-        # Example: 100 SEK to USD (1USD ~= 10.5 SEK): 100 / 10.50 = 9.5~ (USD)
+        # Example: 100 SEK and 1 USD = 10.5 SEK -> 100 / 10.5 = 9.50 USD
         base_amount = amount / from_rate
         # Convert the base amount (USD) to choosen rate e.g. EUR (1USD ~= 0.9EUR)
-        # 0.95(USD(base_amount)) * 0.90(EUR(to_rate)) ~= 0.85(EUR(converted_amount))
+        # Example: 9.50 USD and 1 USD = 0.9 EUR -> 9.52 * 0.9 = 8.60 EUR
         converted_amount = base_amount * to_rate
 
         # Return the evaluated result
         return converted_amount
 
 
-    # Added this method into list_rates method.
+
+    # Created list_rates method do handle this functionallity-
     def list_currencies(self) -> list[str]:
         """
-        List all available currencies in alphabetical order.
-        # BONUS - somehow get the full currency names, and include that as well. Feel free to do it any way you like.
-
-        Returns:
-            A sorted list of available currency codes.
+        Returns: A sorted list of available currency codes. 
         """
-        pass
+
 
 
     def load_currency_data(self) -> dict[str, Any]:
@@ -265,6 +254,7 @@ class CurrencyHandler:
             print(f"There was an error exporting data: {e}")
 
 
+
     # Change parameter base_currency to USD (free-user only allows USD as base).
     def get_historical_rate(self, date: str, base_currency: str="USD") -> dict[str, Any]:
         """
@@ -282,7 +272,7 @@ class CurrencyHandler:
 
         # Create f-string and variables for app ID, URL and date.
         app_id = "4ee8416577fd41128be96f5a18dbb9de"
-        url = f"https://openexchangerates.org/api/historical/{date}.json?app_id={app_id}" # Change "date" to input
+        url = f"https://openexchangerates.org/api/historical/{date}.json?app_id={app_id}"
 
         try:
             # Create variable and get request for url, add connection timeout at 10 seconds.
@@ -294,13 +284,15 @@ class CurrencyHandler:
         
         # Basic error handling, return empty dict in this case (to avoid crash) - TRY TO BE MORE SPECIFIC HERE
         except Exception as e:
-            print(f"Failed to fetch historical data: {e}") # TODO: How to implement the response.exceptions to catch all network issues? 
+            print(f"Failed to fetch historical data: {e}")
             return {}
+        
         return historical_data
 
 
-    # DONT KNOW IF THIS WORKS AS INTENDEND JUST YET, FIX MENUCHOICE AND THEN FIX DETAILS
-    def list_historical_rates_for_currency(self, currency: str, days: str) -> list[tuple[str, str]]:
+
+
+    def list_historical_rates_for_currency(self, currency: str, days: int) -> list[tuple[str, str]]:
         """
         Get the trend of exchange rates for a currency over a specified number of days.
 
@@ -312,31 +304,32 @@ class CurrencyHandler:
             A list of tuples, each containing a date and the corresponding rate
             Tuples are typically used to store pairs of values.
         """
-        
 
         if days <= 0:
             raise ValueError("Please enter a positive number.")
 
-        results: list[tuple[str, str]] = [] # Store date and rate
+        # Store date and rate
+        results: list[tuple[str, str]] = []
         user_code = currency.strip().upper()
 
-        # Sets the time to UTC
-        # today = datetime.now(datetime.timezone.utc) # doesn't work -.- wtf
-
         # Sets time to UTC / .date() to remove time (only use date). Variable represents todays date in UTC.
-        today = datetime.now(timezone.utc).date() # whaaaaaaaaaaaaaaaaaat?! lol you forgot to import timezone
+        today = datetime.now(timezone.utc).date()
 
         for i in range(days):
-            prior_day = today - timedelta(days=i) # Math operation that goes back one day for each iteration.
-            date_string = prior_day.strftime("%Y-%m-%d") # Returns a string representing date.
-
-            new_data = self.get_historical_rate(date_string) # Reuse historical_rate method (date_string contains timestamp, rates).
-            rate = new_data.get("rates", {}).get(user_code) # Get rates for target currency and store in rate variable, if not found - store in empty dict to avoid crash
+            # Math operation that goes back one day for each iteration.
+            prior_day = today - timedelta(days=i)
+            # Returns a string representing date.
+            date_string = prior_day.strftime("%Y-%m-%d")
+            # Reuse historical_rate method (date_string contains timestamp, rates).
+            new_data = self.get_historical_rate(date_string)
+            # Get rates for target currency and store in rate variable, if not found - store in empty dict to avoid crash
+            rate = new_data.get("rates", {}).get(user_code)
 
             if rate:
-                results.append((date_string, float(rate))) # If rate is found, add it to result and convert it to float (wrap in tuple so it takes two arguments).
-
-        results.sort() # Sort the results.
-
-        return results # Return the results.
+                # If rate is found, add it to result and convert it to float (wrap in tuple so it takes two arguments).
+                results.append((date_string, float(rate)))
+        # Sort the results.
+        results.sort()
+        # Return the results.
+        return results
 
