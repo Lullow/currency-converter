@@ -202,7 +202,7 @@ class CurrencyHandler:
         return converted_amount
 
 
-
+    # Added this method into list_rates method.
     def list_currencies(self) -> list[str]:
         """
         List all available currencies in alphabetical order.
@@ -212,7 +212,6 @@ class CurrencyHandler:
             A sorted list of available currency codes.
         """
         pass
-
 
 
     def load_currency_data(self) -> dict[str, Any]:
