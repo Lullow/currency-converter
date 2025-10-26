@@ -37,7 +37,7 @@ def main() -> None:
 
     while True:
         print("\nCurrency Converter Menu:")
-        print("[0] - List all currencies")
+        print("[0] - List all currencies in alphabetical order")
         print("[1] - Convert USD to a currency of choice")
         print("[2] - Refresh the data (fetch new currency data)")
         print("[3] - Export the data to JSON")
@@ -81,7 +81,7 @@ def main() -> None:
             # Catch unexpected errors
             except Exception as e:                
                 print(f"Unexpected error ocurred: {e}")
-
+        
         elif choice == "2":
             try:
                 currency_handler.fetch_currency_data()
@@ -104,7 +104,7 @@ def main() -> None:
                 user_amount_float = float(user_amount)
                 # Use convert any currency method to do the conversion.
                 result = currency_handler.convert_any_currency(user_from, user_to, user_amount_float)
-                print(f"You converted {user_amount_float:.2f} {user_from} to {user_to}.") 
+                print(f"You converted {user_amount_float:.2f} {user_from} to {result:.2f} {user_to}.") 
                 print(f"Final payout: {result:.2f} {user_to}.")
 
             # Catch input that's not numbers, negative or wrong currency code. Also unexcepcted errors, and handle them without crasching the program.
@@ -115,6 +115,7 @@ def main() -> None:
 
         elif choice == "5":
             date = input("Enter date to check (YYYY-MM-DD): ").strip()
+            print("This gets the historical data from todays date, going back to the date chosen.")
 
             try:
                 historical_date_data = currency_handler.get_historical_rate(date)
@@ -127,8 +128,9 @@ def main() -> None:
                     print(f"Base: {historical_date_data.get('base')}")
 
                     # code represents the 3-letter code, rate represents the value, items() iterates key, value pairs.
-                    for code, rate in list(historical_date_data.get('rates', {}).items()[:10]):
-                        print(f"{code}: {rate}") #
+                    # print out the 10 first currencies (which will be in alphabetical order..) Good idé?
+                    for code, rate in list(historical_date_data.get('rates', {}).items())[:10]:
+                        print(f"{code}: {rate}")
 
             except Exception as e:
                 print(f"Error fetching historical rates: {e}")
@@ -164,3 +166,19 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
+# elif2:"<bound method Response.raise_for_status of <Response [200]>>" Can I fix? - printed out the the method instead of calling it - FIXED.
+
+# elif3: Right now the timestamp outputs this: ""timestamp": 1761465617," Can I fix? 
+
+# elif5: Error fetching historical rates: 'dict_items' object is not subscriptable - missplaced parantheses - FIXED.
+
+# # .get is not getting the same yellow highlight as it's supposed to - but it works.. (line 326 in currencyhandler.py) I don't know how to fix it.
+
+
+
+# API key not hardcoded - fix?
+
+# Don't know if it's a good idé to show 10x of rates when choosing "get historical exchange rate" or to show all the currencies.
+

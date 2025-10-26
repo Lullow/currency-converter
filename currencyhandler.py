@@ -75,7 +75,7 @@ class CurrencyHandler:
 
             # 200 status is OK!
             if response.status_code == 200:
-                print(response.raise_for_status)
+                response.raise_for_status()
                 # Convert data to a .json, then into a dict and store it in variable "data".
                 data: dict[str, Any] = response.json()
                 # Self.data saves the "whole" JSON response.
