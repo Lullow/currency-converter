@@ -91,7 +91,13 @@ def main() -> None:
                 print(f"Refresh failed: {e}")
 
         elif choice == "3":
-            currency_handler.export_to_json("updated_rates.json")
+            try:
+                currency_handler.export_to_json()
+                print("Data exported successfully.")
+            except ValueError as e:
+                print(f"{e}")
+            except IOError as e:
+                print(f"Could not write file: {e}")
 
         elif choice == "4":
             # strip and upper methods for friendlier UI experience.

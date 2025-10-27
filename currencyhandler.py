@@ -33,7 +33,11 @@ class CurrencyHandler:
         # placeholder.
         self.timestamp = None
 
-        self.fetch_currency_data() 
+        try:
+            self.fetch_currency_data()
+        except Exception as e:
+            # Raises a description of what type of error occured.
+            raise RuntimeError(f"Failed to initialize Currencyhandler: {e}")
 
 
 
@@ -73,34 +77,31 @@ class CurrencyHandler:
             # Send the request to the server, pass-in a timeout at 10 seconds or it will run indefinitely.
             response = requests.get(url, headers=headers, timeout=10)
 
-            # 200 status is OK!
-            if response.status_code == 200:
-                response.raise_for_status()
-                # Convert data to a .json, then into a dict and store it in variable "data".
-                data: dict[str, Any] = response.json()
-                # Self.data saves the "whole" JSON response.
-                self.data = data
-                # Looks for the value (every currency) from data - print a default value "{}" if "rates" does not exist-
-                self.rates = data.get("rates", {})
-                # Because USD is the only base we can work with. / .get requests the data from server (the base currency in this case)-
-                self.base = data.get("base", "USD")
-                # Saves the last time data was timestamped (updated) / .get requests the data from server (the timestamp in this case).
-                self.timestamp = data.get("timestamp")
-                # Returns data
-                return data
-            
-            else:
-                # Print error message.
-                print(f"Non-success status code: {response.status_code}") 
-
-        # Added a "catcher" for network errors (raises a ConnectionError exception).
-        # Prevents program from crasching
-        except requests.RequestException as e:
-            print(f"Network error while fetching data: {e}")
-            self.data = {}
-            self.rates = {}
-            self.timestamp = None
-            return {}
+            # Raises HTTPError for codes  like 404, 500.
+            response.raise_for_status()
+            # Convert data to a .json, then into a dict and store it in variable "data".
+            data: dict[str, Any] = response.json()
+            # Self.data saves the "whole" JSON response.
+            self.data = data
+            # Looks for the value (every currency) from data - print a default value "{}" if "rates" does not exist-
+            self.rates = data.get("rates", {})
+            # Because USD is the only base we can work with. / .get requests the data from server (the base currency in this case)-
+            self.base = data.get("base", "USD")
+            # Saves the last time data was timestamped (updated) / .get requests the data from server (the timestamp in this case).
+            self.timestamp = data.get("timestamp")
+            # Returns data
+            return data
+        
+        # Exceptions: Timeout error, connection error, HTTP error and unexcpected errors:
+        except requests.exceptions.Timeout:
+            raise TimeoutError("The request timed out, Try again later.")        
+        except requests.exceptions.ConnectionError:
+            raise ConnectionError("Could not connect, check your internetconncetion.")        
+        except requests.HTTPError as e:
+            raise RuntimeError(f"HTTP error: {e}")        
+        except Exception as e:
+            raise(f"There was an unexpected error: {e}" )
+        
 
 
 
@@ -163,31 +164,24 @@ class CurrencyHandler:
             ValueError: If either currency code is invalid or the amount is negative.
         """
 
-        # Baisc number errorhandling
-        if amount <= 0:
-            raise ValueError("Error: amount must be greater than 0")
 
         # Create two variables to work with, uppsercase and strip them for better UI.
         convert_from = from_currency.upper().strip()
         convert_to = to_currency.upper().strip()
 
-        # Basic errorhandling for currency code
-        if convert_from not in self.rates or convert_to not in self.rates:
-            raise ValueError ("Either currency converting from, or to are invalid.")
+        # Basic errorhandling for currency code (check that both codes exists in the rate dict).
+        if amount <= 0 or convert_from not in self.rates or convert_to not in self.rates:
+            raise ValueError ("Invalid input, check amount or currency codes.")
 
-        # Create variable that takes self.rates dict to apply in coming conversion (to be able to do math)
-        # What happens:
-        # The convert from/to is the 3-letter code e.g. "SEK" / self.rates looks up the code in dict
-        # The base is "USD", so now it knows 1USD = 10~SEK (which is stores in from_rate)
-        # Same goes with to_rate e.g.: (1USD = 1EUR)
+        # Get exchange rate from currencies.
+        # from_rate: rate for the currency converted FROM
+        # to_rate rate for the currency converted TO 
         from_rate = self.rates[convert_from]
         to_rate = self.rates[convert_to]
 
-        # Convert the amount from the choosen rate to USD: 
-        # Example: 100 SEK and 1 USD = 10.5 SEK -> 100 / 10.5 = 9.50 USD
+        # Convert the amount from the choosen rate to USD.
         base_amount = amount / from_rate
-        # Convert the base amount (USD) to choosen rate e.g. EUR (1USD ~= 0.9EUR)
-        # Example: 9.50 USD and 1 USD = 0.9 EUR -> 9.52 * 0.9 = 8.60 EUR
+        # Convert the base amount (USD) to choosen rate.
         converted_amount = base_amount * to_rate
 
         # Return the evaluated result
@@ -234,10 +228,9 @@ class CurrencyHandler:
         Raises:
             IOError: If there's an error writing to the file, or a custom exception.
         """
-        # If there's no data print msg and return.
+        # If there's no data raise error.
         if not self.data:
-            print("There's no data to export.")
-            return
+            raise ValueError("No data found.")
         
 
         # Open a file for writing ("w") "w" also creates file if it doesn't exist.
@@ -245,13 +238,12 @@ class CurrencyHandler:
         # .dump converts py dict to json string and writes it to the file.
         # indent=number gives a better structure to the exported file, else it will display as a long string with all info.
         try:
-            with open(filename, "w") as file:
+            with open(filename, "w", encoding="utf-8") as file:
                 json.dump(self.data, file, indent=4)
 
-            print(f"Data successfully exported to: {filename}")
-
-        except Exception as e:
-            print(f"There was an error exporting data: {e}")
+        except OSError as e:
+            # Raise error if something wrong when writing the file.
+            raise IOError(f"Failed to export data to file: {filename}: {e}")
 
 
 
@@ -282,9 +274,8 @@ class CurrencyHandler:
             # Create variable that stores the response as json (historical_data variable will be a dict format due to .json (converts it automatically))
             historical_data = response.json()
         
-        # Basic error handling, return empty dict in this case (to avoid crash) - TRY TO BE MORE SPECIFIC HERE
-        except Exception as e:
-            print(f"Failed to fetch historical data: {e}")
+        # Basic error handling, return empty dict in this case of anything goes wrong.
+        except Exception:
             return {}
         
         return historical_data
