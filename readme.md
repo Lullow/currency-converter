@@ -1,37 +1,37 @@
-# Laboration 2
+# Currency Converter
 
-## LÄS DETTA FÖRST
+A terminal-based currency conversion app built in Python, using the OpenExchangeRates API.
 
-**Deadline**: Kommuniceras via discord & läroplattformen
+This was my **second Python lab**, built during the course *Programmering i Python* in October 2025. The focus was on object-oriented programming — building a reusable class that handles all currency logic, separate from the UI in `main.py`.
 
-**Betyg**: U, G
+## What it does
 
-- För att få G ska applikationen fungera och vara relativt buggfri, du ska hantera errors i större grad.
+- List all available currencies
+- Convert USD to any currency
+- Convert between any two currencies
+- Fetch and refresh live exchange rate data from the API
+- Export rate data to JSON
+- Look up historical exchange rates by date
+- View rate trends for a currency over a chosen number of days
 
-## Inlämning
+## How to run
 
-Ta bort alla onödiga filer, din kod bör vara på den huvudsakliga branchen "main" eller "master".
-Se till att du körde git clone på din EGEN repository för labben.
-Feedback ges via en speciell branch som skapas automatiskt, mer information om detta får du av utbildaren.
+```bash
+pip install -r requirements.txt
+python main.py
+```
 
-## Att använda AI
+Requires a free API key from [openexchangerates.org](https://openexchangerates.org/).
 
-- Det är förbjudet att använda AI som tex. chatgpt för att lösa uppgiften. Ni ska träna på att tänka själva nu - det är väldigt uppenbart för mig när ni använder AI. Att däremot använda GPT till att förklara olika saker är OK! Att använda GPT eller github copilot för att generera kod är något ni kan utnyttja först när ni lärt er problemlösning på en högre nivå. Misstänker jag något får ni en varning och kan leda till avstängning, eller så kan du bli inkallad för ett muntligt förhör.
+## Structure
 
-## Beskrivning:
+- `main.py` — menu and user interaction
+- `currencyhandler.py` — `CurrencyHandler` class with all currency logic
+- `requirements.txt` — dependencies
+- `updated_rates.json` — cached rate data
 
-Din chef har påbörjat en enkel applikation för att kunna konvertera valutor.
-Ditt uppdrag är att färdigställa applikationen utifrån instruktionerna givna i filen.
-Idén är att du ska träna på att skapa en klass, som kan användas i ditt program. Klassen ska vara återanvändbar, dvs. den ska inte försöka använda print, input, etc. utan istället ska den försöka returnera data, som sedan kan användas av ditt program i main.py. Tanken är alltså inte att köra currencyhandler.py, utan tanken är att för att använda programmet ska man exekvera main.py.
+## Tech
 
-Sammanfattningsvis kommer du att behöva:
-
-- Registrera ett gratiskonto på [https://openexchangerates.org/](https://openexchangerates.org/) - Du har totalt 1000 anrop på en månad och och kommer få en API-nyckel tilldelad. Du hittar API-nyckeln på "Your dashboard" -> "App IDs", du kommer sedan använda den när du ska göra anrop till deras API. Klistra in app-ID't under variabeln app_id som du hittar i kodspecifikationen i filen main.py. Var försiktig med eventuella loopar! Om du får slut på anrop så får du helt enkelt skapa ett nytt konto.
-
-- Utgå från deras dokumentation för att förstå hur du ska hämta data: https://docs.openexchangerates.org/
-- Implementera en meny som ger användaren val, hur menyn ska se ut specificeras i filen.
-- Försök att utnyttja try-excepts så mycket som möjligt vid errorhantering, du skulle tex. kunna skapa custom exceptions där det är lämpligt
-- Dela upp logik i olika filer där du tycker det är lämpligt, tex. custom errors, vissa funktioner
-- Implementera befintliga metoder som är specificerade. Om du vill lägga till ytterligare klasser, metoder eller filer ska det finnas tydliga och logiska skäl till detta. Det är som sagt OK att modifiera baskoden, så länge du är självsäker i att det är logiskt och genomtänkt. Exempelvis kanske du vill att main-funktionen ska vara en del av klassen.
-- **Befintliga metoder kan behöva förbättringar/förändringar, tex. fler parametrar än det som står. Det viktiga är att du kan leverera en applikation som fungerar**
-- **Du ska läsa specifikationen NOGGRANT innan du börjar. Det innebär att innan du skriver första raden kod ska du bilda dig en helhetsbild genom att ha läst beskrivningen under samtliga metoder.**
+- Python 3
+- `requests` library
+- OpenExchangeRates API
