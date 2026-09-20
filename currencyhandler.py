@@ -1,4 +1,5 @@
 import json
+import os  # Needed for reading the API key from the environment.
 from datetime import (  # Needed for calculating date and time.
     datetime,
     timedelta,
@@ -7,6 +8,9 @@ from datetime import (  # Needed for calculating date and time.
 from typing import Any
 
 import requests
+from dotenv import load_dotenv  # loads environment variables from .env file
+
+load_dotenv(override=True)      # ensure that .env values has higher priority over system values
 
 
 class CurrencyHandler:
@@ -32,6 +36,13 @@ class CurrencyHandler:
         self.rates = {}
         # placeholder.
         self.timestamp = None
+        # The API key is read from the environment, never stored in the code.
+        self.app_id = os.getenv("OXR_APP_ID")
+        if not self.app_id:
+            raise RuntimeError(
+                "Missing OXR_APP_ID. Create a .env file with your key from "
+                "openexchangerates.org, see .env.example."
+            )
 
         try:
             self.fetch_currency_data()
@@ -67,8 +78,7 @@ class CurrencyHandler:
             A dictionary containing the latest exchange rates and metadata.
         """
         # Use this code to fetch currency data from openexchangerates.org.
-        app_id = "4ee8416577fd41128be96f5a18dbb9de"
-        url = f"https://openexchangerates.org/api/latest.json?app_id={app_id}"
+        url = f"https://openexchangerates.org/api/latest.json?app_id={self.app_id}"
         # This needs to be added, it tells the API that they should return JSON.
         headers = {"accept": "application/json"}
         
@@ -262,9 +272,8 @@ class CurrencyHandler:
             You should probably store it in a list or dict.
         """
 
-        # Create f-string and variables for app ID, URL and date.
-        app_id = "4ee8416577fd41128be96f5a18dbb9de"
-        url = f"https://openexchangerates.org/api/historical/{date}.json?app_id={app_id}"
+        # Create f-string and variables for URL and date, the app ID comes from the environment.
+        url = f"https://openexchangerates.org/api/historical/{date}.json?app_id={self.app_id}"
 
         try:
             # Create variable and get request for url, add connection timeout at 10 seconds.

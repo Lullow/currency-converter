@@ -18,16 +18,20 @@ This was my **second Python lab**, built during the course *Programmering i Pyth
 
 ```bash
 pip install -r requirements.txt
+cp .env.example .env   # then paste your own API key into .env
 python main.py
 ```
 
 Requires a free API key from [openexchangerates.org](https://openexchangerates.org/).
+The key is read from the environment variable `OXR_APP_ID` and is never committed —
+`.env` is gitignored.
 
 ## Structure
 
 - `main.py` — menu and user interaction
 - `currencyhandler.py` — `CurrencyHandler` class with all currency logic
 - `requirements.txt` — dependencies
+- `.env.example` — template for the API key
 - `updated_rates.json` — cached rate data
 
 ## Tech
